@@ -1,0 +1,76 @@
+service: deerhorn-roboto-sls
+
+custom:
+  drImagesBucked: deerhorn-roboto-images-${self:provider.stage}
+  skillsTableName: deerhorn-roboto-skills-table-${self:provider.stage}
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - lambda:InvokeFunction
+        - lambda:InvokeAsync
+      Resource: '*'
+    - Effect: 'Allow'
+      Action:
+        - 's3:DeleteObject'
+        - 's3:PutObject'
+        - 's3:PutObjectAcl'
+      Resource: 'arn:aws:s3:::${self:custom.drImagesBucked}/*'
+    - Effect: 'Allow'
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: '*'
+  resourcePolicy:
+    - Effect: Allow
+      Principal: '*'
+      Action: execute-api:Invoke
+      Resource:
+        - execute-api:/*/POST/
+      Condition:
+        IpAddress:
+          aws:SourceIp:
+            - 149.154.160.0/20
+            - 91.108.4.0/22
+functions:
+  webhook:
+    handler: handler.webhook
+    timeout: 30
+    events:
+      - http:
+          path: /
+          method: POST
+    environment:
+      TELEGRAM_BOT_TOKEN: ${ssm:deerhorn-robot-bot-token-${self:provider.stage}~true}
+      BUCKET_NAME: ${self:custom.drImagesBucked}
+      SKILLS_TABLE_NAME: ${self:custom.skillsTableName}
+resources:
+  Resources:
+    S3BucketImages:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.drImagesBucked}
+        AccessControl: PublicRead
+    SkillDynamodbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: 'skillName'
+            AttributeType: 'S'
+          - AttributeName: 'skillLevel'
+            AttributeType: 'N'
+        KeySchema:
+          - AttributeName: 'skillName'
+            KeyType: 'HASH'
+          - AttributeName: 'skillLevel'
+            KeyType: 'RANGE'
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.skillsTableName}
