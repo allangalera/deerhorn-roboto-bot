@@ -1,6 +1,6 @@
 # deerhorn-roboto-bot
 
-A simple Telegram bot to help players of Chat Wars
+A simple Telegram bot to help players of Chat Wars. Go to [@deerhorn_roboto_bot](https://t.me/deerhorn_roboto_bot) to try it :)
 
 ## Technology used
 
