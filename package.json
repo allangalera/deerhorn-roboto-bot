@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.610.0",
+    "aws-sdk": "^2.814.0",
     "chrome-aws-lambda": "^2.0.2",
     "got": "^10.2.2",
     "moment": "^2.24.0",
