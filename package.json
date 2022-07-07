@@ -3,7 +3,7 @@
     "aws-sdk": "^2.610.0",
     "chrome-aws-lambda": "^2.0.2",
     "got": "^10.2.2",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "object-hash": "^2.0.1",
     "pug": "^2.0.4",
     "puppeteer-core": "^2.0.0",
